@@ -82,6 +82,7 @@ app.get('/', function (req, res) {
   res.end("hi!")
 })
 
-app.listen(4000, function() {
-  console.log("Up and running on 4000...");
+var port = process.env.PORT || 4000;
+app.listen(port, function() {
+  console.log("Up and running on " + port + "...");
 });
