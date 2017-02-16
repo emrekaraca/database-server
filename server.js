@@ -31,12 +31,12 @@ app.get('/set', function (req, res) {
     Key.count({ key: key }, function(err, result) {
       if (err) { throw err; }
       if (result !== 0) {
-        res.end("The key: " + key + " is already in use!");
+        res.end("The key: \'" + key + "\' is already in use!");
       }
       else {
         newKey.save(function (err) {
           if (err) { throw err; }
-          res.end("Your entry was successfully saved!");
+          res.end("Your entry was successfully saved!\nKey: " + key + "\nValue: " + value);
         })
       }
     })
@@ -46,10 +46,7 @@ app.get('/set', function (req, res) {
 // Route to request a stored value
 app.get('/get', function (req, res) {
   console.log("The entered query is: " + req.query);
-  if (Object.keys(req.query).length !== 1) {
-    res.end("Please enter one key-value-pair!");
-  }
-  else if (req.query.hasOwnProperty('key') === false) {
+  if (Object.keys(req.query).length !== 1 || req.query.hasOwnProperty('key') === false) {
     res.end("Please enter the request in the following format: /get?key=[requested key]!")
   }
   else if (req.query.hasOwnProperty('key')) {
@@ -57,8 +54,12 @@ app.get('/get', function (req, res) {
     var requestedKey = req.query.key;
     Key.findOne({ key: requestedKey }, function (err, result) {
       if (err) { throw err; }
-      console.log(result);
-      res.end("The requested value for the entered key " + result.key + " is: " + result.value);
+      if (result !== null) {
+        console.log(result);
+        res.end("The requested value for the entered key \'" + result.key + "\' is: \'" + result.value + "\'.");
+      } else {
+        res.end("The key \'" + requestedKey + "\' could not be found!")
+      }
     })
   }
 });
@@ -77,4 +78,6 @@ app.get('/reset', function (req, res) {
   res.end("All entries were deleted!")
 });
 
-app.listen(4000);
+app.listen(4000, function() {
+  console.log("Up and running on 4000...");
+});
