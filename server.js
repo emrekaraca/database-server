@@ -1,22 +1,7 @@
 var express = require('express'),
     app = express(),
-    mongoose = require('mongoose');
-
-// Set up DB connection and model
-mongoose.connect('mongodb://localhost/database');
-
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
-  console.log('Connected to DB!');
-});
-
-var keySchema = mongoose.Schema({
-    key: String,
-    value: String
-});
-
-var Key = mongoose.model('Key', keySchema);
+    LocalStorage = require('node-localstorage').LocalStorage,
+    localStorage = new LocalStorage('./scratch');
 
 // Route to store a key-value-pair
 app.get('/set', function (req, res) {
@@ -27,19 +12,9 @@ app.get('/set', function (req, res) {
   else {
     var key = Object.keys(req.query)[0];
     var value = req.query[key];
-    var newKey = new Key({ key: key, value: value });
-    Key.count({ key: key }, function(err, result) {
-      if (err) { throw err; }
-      if (result !== 0) {
-        res.end("The key: " + key + " is already in use!");
-      }
-      else {
-        newKey.save(function (err) {
-          if (err) { throw err; }
-          res.end("Your entry was successfully saved!");
-        })
-      }
-    })
+    localStorage.setItem(key, value);
+    console.log("stored key: " + localStorage.getItem(key));
+    res.end("Your entry was successfully saved!");
   }
 });
 
@@ -55,26 +30,12 @@ app.get('/get', function (req, res) {
   else if (req.query.hasOwnProperty('key')) {
     console.log("requested key is: " + req.query.key);
     var requestedKey = req.query.key;
-    Key.findOne({ key: requestedKey }, function (err, result) {
-      if (err) { throw err; }
-      console.log(result);
-      res.end("The requested value for the entered key " + result.key + " is: " + result.value);
-    })
+    if (localStorage.getItem(requestedKey) !== null) {
+      res.end("The requested value for the entered key " + requestedKey + " is: " + localStorage.getItem(requestedKey));
+    } else {
+      res.end("The key " + requestedKey + " was not found!")
+    }
   }
-});
-
-// Route to display all entries
-app.get('/all', function (req, res) {
-  Key.find({}, function (err, value) {
-    if (err) { throw err; }
-    res.end(JSON.stringify(value));
-  })
-});
-
-// Route to delete all entries
-app.get('/reset', function (req, res) {
-  Key.find({}).remove().exec();
-  res.end("All entries were deleted!")
 });
 
 app.listen(4000);
