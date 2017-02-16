@@ -79,7 +79,7 @@ app.get('/reset', function (req, res) {
 });
 
 app.get('/', function (req, res) {
-  res.end("hi!")
+  res.render(process.cwd() + "/index.html")
 })
 
 var port = process.env.PORT || 4000;
