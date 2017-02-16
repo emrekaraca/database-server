@@ -3,7 +3,7 @@ var express = require('express'),
     mongoose = require('mongoose');
 
 // Set up DB connection and model
-mongoose.connect('mongodb://localhost/database');
+mongoose.connect('mongodb://dbuser:userpw@ds153699.mlab.com:53699/databaseserver');
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
