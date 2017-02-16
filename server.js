@@ -78,6 +78,10 @@ app.get('/reset', function (req, res) {
   res.end("All entries were deleted!")
 });
 
+app.get('/', function (req, res) {
+  res.end("hi!")
+})
+
 app.listen(4000, function() {
   console.log("Up and running on 4000...");
 });
